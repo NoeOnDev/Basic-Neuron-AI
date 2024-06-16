@@ -10,11 +10,11 @@ x3 = conjunto_datos['x3'].values
 x4 = conjunto_datos['x4'].values
 yd = conjunto_datos['y'].values
 
-X = np.column_stack((x1, x2, x3, x4))
+x = np.column_stack((x1, x2, x3, x4))
 y = yd
 
 escalador = StandardScaler()
-X = escalador.fit_transform(X)
+x = escalador.fit_transform(x)
 
 np.random.seed(0)
 w = np.random.rand(4)
@@ -49,9 +49,9 @@ def entrenar(X, y, w, b, tasa_aprendizaje, epocas):
 tasa_aprendizaje = 0.1
 epocas = 1000
 
-w, b = entrenar(X, y, w, b, tasa_aprendizaje, epocas)
+w, b = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
 
-y_predicho = predecir(X, w, b)
+y_predicho = predecir(x, w, b)
 
 costo_final = error_cuadratico_medio(y, y_predicho)
 print(f'Costo Final: {costo_final}')
