@@ -63,7 +63,7 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
 
 def plot_evolucion_error(epocas, historial_costos):
     plt.figure(figsize=(10, 6))
-    plt.plot(range(epocas), historial_costos, label='Costo')
+    plt.plot(range(epocas), historial_costos, label='Error')
     plt.xlabel('Épocas')
     plt.ylabel('Error Cuadrático Medio')
     plt.title('Evolución del Error a lo largo de las Épocas')
@@ -110,8 +110,20 @@ def mostrar_tabla_pesos(w, b):
 def ejecutar_entrenamiento():
     try:
         recrear_directorios()
-        tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
-        epocas = int(entry_epocas.get())
+        tasa_aprendizaje_str = entry_tasa_aprendizaje.get()
+        epocas_str = entry_epocas.get()
+        
+        if not tasa_aprendizaje_str or not epocas_str:
+            raise ValueError("Los campos no pueden estar vacíos")
+
+        tasa_aprendizaje = float(tasa_aprendizaje_str)
+        epocas = int(epocas_str)
+
+        if not 0 <= tasa_aprendizaje <= 1:
+            raise ValueError("La tasa de aprendizaje debe estar entre 0 y 1")
+
+        if epocas <= 0:
+            raise ValueError("Las épocas deben ser un número positivo")
 
         np.random.seed(0)
         w = np.random.rand(4)
@@ -145,12 +157,14 @@ def ejecutar_entrenamiento():
         
         mostrar_tabla_pesos(w, b)
 
-    except ValueError:
-        messagebox.showerror("Entrada no válida", "Por favor, introduce valores numéricos válidos para la tasa de aprendizaje y las épocas.")
+    except ValueError as e:
+        messagebox.showerror("Entrada no válida", str(e))
 
 root = Tk()
 root.title("Entrenamiento de Modelo")
 root.geometry("450x440")
+
+font_size = 12
 
 root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=1)
@@ -160,15 +174,15 @@ root.grid_rowconfigure(4, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
 
-Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0, sticky="e", padx=(0, 10), pady=(10, 10))
+Label(root, text="Tasa de Aprendizaje:", font=("Helvetica", font_size)).grid(row=0, column=0, sticky="e", padx=(0, 10), pady=(10, 10))
 entry_tasa_aprendizaje = Entry(root)
 entry_tasa_aprendizaje.grid(row=0, column=1, sticky="w", padx=(20, 100))
 
-Label(root, text="Épocas:").grid(row=1, column=0, sticky="e", padx=(100, 10), pady=(10, 10))
+Label(root, text="Épocas:", font=("Helvetica", font_size)).grid(row=1, column=0, sticky="e", padx=(100, 10), pady=(10, 10))
 entry_epocas = Entry(root)
 entry_epocas.grid(row=1, column=1, sticky="w", padx=(20, 100))
 
-button_ejecutar = Button(root, text="Ejecutar", command=ejecutar_entrenamiento)
+button_ejecutar = Button(root, text="Ejecutar",font=("Helvetica", font_size), command=ejecutar_entrenamiento)
 button_ejecutar.grid(row=2, column=0, columnspan=2, pady=20)
 
 text_resultado = Text(root, height=20, width=100)
