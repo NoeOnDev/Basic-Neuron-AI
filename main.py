@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
 conjunto_datos = pd.read_excel('2024.05.22 dataset 8A.xlsx')
 
@@ -28,7 +29,9 @@ def error_cuadratico_medio(y_verdadero, y_predicho):
 
 def entrenar(X, y, w, b, tasa_aprendizaje, epocas):
     m = X.shape[0]
-    
+    historial_costos = []
+    historial_pesos = []
+
     for epoca in range(epocas):
         y_predicho = predecir(X, w, b)
         
@@ -40,16 +43,19 @@ def entrenar(X, y, w, b, tasa_aprendizaje, epocas):
         w -= tasa_aprendizaje * dw
         b -= tasa_aprendizaje * db
         
+        costo = error_cuadratico_medio(y, y_predicho)
+        historial_costos.append(costo)
+        historial_pesos.append(np.append(w, b))
+        
         if epoca % 100 == 0:
-            costo = error_cuadratico_medio(y, y_predicho)
             print(f'Epoca {epoca}: Costo {costo}')
     
-    return w, b
+    return w, b, historial_costos, historial_pesos
 
 tasa_aprendizaje = 0.1
 epocas = 1000
 
-w, b = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
+w, b, historial_costos, historial_pesos = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
 
 y_predicho = predecir(x, w, b)
 
@@ -71,3 +77,33 @@ sesgo_df = pd.DataFrame({
 pesos_finales_df = pd.concat([pesos_df, sesgo_df])
 
 print(pesos_finales_df)
+
+plt.figure(figsize=(10, 6))
+plt.plot(range(epocas), historial_costos, label='Costo')
+plt.xlabel('Épocas')
+plt.ylabel('Error Cuadrático Medio')
+plt.title('Evolución del Error a lo largo de las Épocas')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot(y, label='y-Deseada')
+plt.plot(y_predicho, label='y-Calculada')
+plt.xlabel('ID de Muestra')
+plt.ylabel('Valor')
+plt.title('Comparación entre y-Deseada y y-Calculada')
+plt.legend()
+plt.show()
+
+historial_pesos = np.array(historial_pesos)
+plt.figure(figsize=(10, 6))
+for i in range(historial_pesos.shape[1]):
+    if i < historial_pesos.shape[1] - 1:
+        plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
+    else:
+        plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
+plt.xlabel('Épocas')
+plt.ylabel('Peso')
+plt.title('Evolución de los Pesos a lo largo de las Épocas')
+plt.legend()
+plt.show()
