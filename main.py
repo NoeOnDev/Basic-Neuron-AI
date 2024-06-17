@@ -21,23 +21,23 @@ np.random.seed(0)
 w = np.random.rand(4)
 b = np.random.rand()
 
-def predecir(X, w, b):
-    return np.dot(X, w) + b
+def predecir(x, w, b):
+    return np.dot(x, w) + b
 
 def error_cuadratico_medio(y_verdadero, y_predicho):
     return np.mean((y_verdadero - y_predicho) ** 2)
 
-def entrenar(X, y, w, b, tasa_aprendizaje, epocas):
-    m = X.shape[0]
+def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
+    m = x.shape[0]
     historial_costos = []
     historial_pesos = []
 
     for epoca in range(epocas):
-        y_predicho = predecir(X, w, b)
+        y_predicho = predecir(x, w, b)
         
         error = y_predicho - y
         
-        dw = (2/m) * np.dot(X.T, error)
+        dw = (2/m) * np.dot(x.T, error)
         db = (2/m) * np.sum(error)
         
         w -= tasa_aprendizaje * dw
