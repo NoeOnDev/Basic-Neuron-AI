@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-from tkinter import Tk, Label, Entry, Button
+from tkinter import Tk, Label, Entry, Button, Text, END
 import tkinter.messagebox as messagebox
+from prettytable import PrettyTable
 
 os.makedirs('graficas_epocas', exist_ok=True)
 os.makedirs('grafica_evolucion_error', exist_ok=True)
@@ -96,6 +97,16 @@ def plot_evolucion_pesos(epocas, historial_pesos):
     plt.savefig('grafica_evolucion_pesos/evolucion_pesos.png')
     plt.close()
 
+def mostrar_tabla_pesos(w, b):
+    tabla = PrettyTable()
+    tabla.field_names = ["Característica", "Peso"]
+    for i, peso in enumerate(w):
+        tabla.add_row([f'x{i+1}', peso])
+    tabla.add_row(['Sesgo', b])
+    
+    text_resultado.delete(1.0, END)
+    text_resultado.insert(END, tabla)
+
 def ejecutar_entrenamiento():
     try:
         tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
@@ -127,22 +138,36 @@ def ejecutar_entrenamiento():
 
         plot_evolucion_error(epocas, historial_costos)
         plot_evolucion_pesos(epocas, historial_pesos)
+        
+        mostrar_tabla_pesos(w, b)
 
     except ValueError:
         messagebox.showerror("Entrada no válida", "Por favor, introduce valores numéricos válidos para la tasa de aprendizaje y las épocas.")
 
 root = Tk()
 root.title("Entrenamiento de Modelo")
+root.geometry("600x440")
 
-Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0)
+root.grid_rowconfigure(0, weight=1)
+root.grid_rowconfigure(1, weight=1)
+root.grid_rowconfigure(2, weight=1)
+root.grid_rowconfigure(3, weight=1)
+root.grid_rowconfigure(4, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=1)
+
+Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0, sticky="e", padx=(100, 10), pady=(10, 10))
 entry_tasa_aprendizaje = Entry(root)
-entry_tasa_aprendizaje.grid(row=0, column=1)
+entry_tasa_aprendizaje.grid(row=0, column=1, sticky="w", padx=(20, 100))
 
-Label(root, text="Épocas:").grid(row=1, column=0)
+Label(root, text="Épocas:").grid(row=1, column=0, sticky="e", padx=(100, 10), pady=(10, 10))
 entry_epocas = Entry(root)
-entry_epocas.grid(row=1, column=1)
+entry_epocas.grid(row=1, column=1, sticky="w", padx=(20, 100))
 
 button_ejecutar = Button(root, text="Ejecutar", command=ejecutar_entrenamiento)
-button_ejecutar.grid(row=2, column=0, columnspan=2)
+button_ejecutar.grid(row=2, column=0, columnspan=2, pady=20)
+
+text_resultado = Text(root, height=20, width=100)
+text_resultado.grid(row=3, column=0, columnspan=2, padx=20, pady=20)
 
 root.mainloop()
