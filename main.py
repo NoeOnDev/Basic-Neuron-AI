@@ -3,10 +3,9 @@ import shutil
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
-from tkinter import Tk, Label, Entry, Button, Text, END
+from tkinter import Tk, Label, Entry, Button, END, ttk, font
 import tkinter.messagebox as messagebox
-from prettytable import PrettyTable
+from graficas import plot_evolucion_error, plot_comparacion_y, plot_evolucion_pesos
 
 def recrear_directorios():
     directorios = ['graficas_epocas', 'grafica_evolucion_error', 'grafica_evolucion_pesos']
@@ -61,51 +60,13 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
     
     return w, b, historial_costos, historial_pesos
 
-def plot_evolucion_error(epocas, historial_costos):
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(epocas), historial_costos, label='Error')
-    plt.xlabel('Épocas')
-    plt.ylabel('Error Cuadrático Medio')
-    plt.title('Evolución del Error a lo largo de las Épocas')
-    plt.legend()
-    plt.savefig('grafica_evolucion_error/evolucion_error.png')
-    plt.close()
-
-def plot_comparacion_y(y, y_predicho, epoca):
-    plt.figure(figsize=(10, 6))
-    plt.plot(y, label='y-Deseada')
-    plt.plot(y_predicho, label='y-Calculada')
-    plt.xlabel('ID de Muestra')
-    plt.ylabel('Valor')
-    plt.title(f'Comparación entre y-Deseada y y-Calculada (Época {epoca})')
-    plt.legend()
-    plt.savefig(f'graficas_epocas/comparacion_epoca_{epoca}.png')
-    plt.close()
-
-def plot_evolucion_pesos(epocas, historial_pesos):
-    historial_pesos = np.array(historial_pesos)
-    plt.figure(figsize=(10, 6))
-    for i in range(historial_pesos.shape[1]):
-        if i < historial_pesos.shape[1] - 1:
-            plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
-        else:
-            plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
-    plt.xlabel('Épocas')
-    plt.ylabel('Peso')
-    plt.title('Evolución de los Pesos a lo largo de las Épocas')
-    plt.legend()
-    plt.savefig('grafica_evolucion_pesos/evolucion_pesos.png')
-    plt.close()
-
 def mostrar_tabla_pesos(w, b):
-    tabla = PrettyTable()
-    tabla.field_names = ["Característica", "Peso"]
-    for i, peso in enumerate(w):
-        tabla.add_row([f'x{i+1}', peso])
-    tabla.add_row(['Sesgo', b])
+    for item in tree.get_children():
+        tree.delete(item)
     
-    text_resultado.delete(1.0, END)
-    text_resultado.insert(END, tabla)
+    for i, peso in enumerate(w):
+        tree.insert('', 'end', values=(f'x{i+1}', peso))
+    tree.insert('', 'end', values=('Sesgo', b))
 
 def ejecutar_entrenamiento():
     try:
@@ -164,7 +125,9 @@ root = Tk()
 root.title("Entrenamiento de Modelo")
 root.geometry("450x440")
 
-font_size = 12
+font_size = 11
+style = ttk.Style()
+style.configure("Treeview.Heading", font=("Helvetica", font_size))
 
 root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=1)
@@ -182,10 +145,12 @@ Label(root, text="Épocas:", font=("Helvetica", font_size)).grid(row=1, column=0
 entry_epocas = Entry(root)
 entry_epocas.grid(row=1, column=1, sticky="w", padx=(20, 100))
 
-button_ejecutar = Button(root, text="Ejecutar",font=("Helvetica", font_size), command=ejecutar_entrenamiento)
+button_ejecutar = Button(root, text="Ejecutar", font=("Helvetica", font_size), command=ejecutar_entrenamiento)
 button_ejecutar.grid(row=2, column=0, columnspan=2, pady=20)
 
-text_resultado = Text(root, height=20, width=100)
-text_resultado.grid(row=3, column=0, columnspan=2, padx=20, pady=20)
+tree = ttk.Treeview(root, columns=("Característica", "Peso"), show='headings', height=10, style='Treeview')
+tree.heading("Característica", text="Característica")
+tree.heading("Peso", text="Peso")
+tree.grid(row=3, column=0, columnspan=2, padx=20, pady=20)
 
 root.mainloop()
