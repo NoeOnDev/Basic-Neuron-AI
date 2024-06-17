@@ -54,6 +54,39 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
     
     return w, b, historial_costos, historial_pesos
 
+def plot_evolucion_error(epocas, historial_costos):
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(epocas), historial_costos, label='Costo')
+    plt.xlabel('Épocas')
+    plt.ylabel('Error Cuadrático Medio')
+    plt.title('Evolución del Error a lo largo de las Épocas')
+    plt.legend()
+    plt.show()
+
+def plot_comparacion_y(y, y_predicho):
+    plt.figure(figsize=(10, 6))
+    plt.plot(y, label='y-Deseada')
+    plt.plot(y_predicho, label='y-Calculada')
+    plt.xlabel('ID de Muestra')
+    plt.ylabel('Valor')
+    plt.title('Comparación entre y-Deseada y y-Calculada')
+    plt.legend()
+    plt.show()
+
+def plot_evolucion_pesos(epocas, historial_pesos):
+    historial_pesos = np.array(historial_pesos)
+    plt.figure(figsize=(10, 6))
+    for i in range(historial_pesos.shape[1]):
+        if i < historial_pesos.shape[1] - 1:
+            plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
+        else:
+            plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
+    plt.xlabel('Épocas')
+    plt.ylabel('Peso')
+    plt.title('Evolución de los Pesos a lo largo de las Épocas')
+    plt.legend()
+    plt.show()
+
 def ejecutar_entrenamiento():
     try:
         tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
@@ -83,35 +116,9 @@ def ejecutar_entrenamiento():
 
         print(pesos_finales_df)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(epocas), historial_costos, label='Costo')
-        plt.xlabel('Épocas')
-        plt.ylabel('Error Cuadrático Medio')
-        plt.title('Evolución del Error a lo largo de las Épocas')
-        plt.legend()
-        plt.show()
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(y, label='y-Deseada')
-        plt.plot(y_predicho, label='y-Calculada')
-        plt.xlabel('ID de Muestra')
-        plt.ylabel('Valor')
-        plt.title('Comparación entre y-Deseada y y-Calculada')
-        plt.legend()
-        plt.show()
-
-        historial_pesos = np.array(historial_pesos)
-        plt.figure(figsize=(10, 6))
-        for i in range(historial_pesos.shape[1]):
-            if i < historial_pesos.shape[1] - 1:
-                plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
-            else:
-                plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
-        plt.xlabel('Épocas')
-        plt.ylabel('Peso')
-        plt.title('Evolución de los Pesos a lo largo de las Épocas')
-        plt.legend()
-        plt.show()
+        plot_evolucion_error(epocas, historial_costos)
+        plot_comparacion_y(y, y_predicho)
+        plot_evolucion_pesos(epocas, historial_pesos)
 
     except ValueError:
         messagebox.showerror("Entrada no válida", "Por favor, introduce valores numéricos válidos para la tasa de aprendizaje y las épocas.")
