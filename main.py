@@ -1,4 +1,5 @@
 import os
+import shutil
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -7,9 +8,12 @@ from tkinter import Tk, Label, Entry, Button, Text, END
 import tkinter.messagebox as messagebox
 from prettytable import PrettyTable
 
-os.makedirs('graficas_epocas', exist_ok=True)
-os.makedirs('grafica_evolucion_error', exist_ok=True)
-os.makedirs('grafica_evolucion_pesos', exist_ok=True)
+def recrear_directorios():
+    directorios = ['graficas_epocas', 'grafica_evolucion_error', 'grafica_evolucion_pesos']
+    for directorio in directorios:
+        if os.path.exists(directorio):
+            shutil.rmtree(directorio)
+        os.makedirs(directorio)
 
 conjunto_datos = pd.read_excel('2024.05.22 dataset 8A.xlsx')
 
@@ -109,6 +113,7 @@ def mostrar_tabla_pesos(w, b):
 
 def ejecutar_entrenamiento():
     try:
+        recrear_directorios()
         tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
         epocas = int(entry_epocas.get())
         
@@ -146,7 +151,7 @@ def ejecutar_entrenamiento():
 
 root = Tk()
 root.title("Entrenamiento de Modelo")
-root.geometry("600x440")
+root.geometry("450x440")
 
 root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=1)
@@ -156,7 +161,7 @@ root.grid_rowconfigure(4, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
 
-Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0, sticky="e", padx=(100, 10), pady=(10, 10))
+Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0, sticky="e", padx=(0, 10), pady=(10, 10))
 entry_tasa_aprendizaje = Entry(root)
 entry_tasa_aprendizaje.grid(row=0, column=1, sticky="w", padx=(20, 100))
 
