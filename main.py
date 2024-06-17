@@ -29,10 +29,6 @@ y = yd
 escalador = StandardScaler()
 x = escalador.fit_transform(x)
 
-np.random.seed(0)
-w = np.random.rand(4)
-b = np.random.rand()
-
 def predecir(x, w, b):
     return np.dot(x, w) + b
 
@@ -116,8 +112,11 @@ def ejecutar_entrenamiento():
         recrear_directorios()
         tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
         epocas = int(entry_epocas.get())
+
+        np.random.seed(0)
+        w = np.random.rand(4)
+        b = np.random.rand()
         
-        global w, b
         w, b, historial_costos, historial_pesos = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
 
         y_predicho = predecir(x, w, b)
