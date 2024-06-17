@@ -1,9 +1,14 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from tkinter import Tk, Label, Entry, Button
 import tkinter.messagebox as messagebox
+
+os.makedirs('graficas_epocas', exist_ok=True)
+os.makedirs('grafica_evolucion_error', exist_ok=True)
+os.makedirs('grafica_evolucion_pesos', exist_ok=True)
 
 conjunto_datos = pd.read_excel('2024.05.22 dataset 8A.xlsx')
 
@@ -49,8 +54,9 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
         historial_costos.append(costo)
         historial_pesos.append(np.append(w, b))
         
-        if epoca % 100 == 0:
+        if epoca == 0 or epoca == epocas // 2 or epoca == epocas - 1:
             print(f'Epoca {epoca}: Costo {costo}')
+            plot_comparacion_y(y, y_predicho, epoca)
     
     return w, b, historial_costos, historial_pesos
 
@@ -61,17 +67,19 @@ def plot_evolucion_error(epocas, historial_costos):
     plt.ylabel('Error Cuadrático Medio')
     plt.title('Evolución del Error a lo largo de las Épocas')
     plt.legend()
-    plt.show()
+    plt.savefig('grafica_evolucion_error/evolucion_error.png')
+    plt.close()
 
-def plot_comparacion_y(y, y_predicho):
+def plot_comparacion_y(y, y_predicho, epoca):
     plt.figure(figsize=(10, 6))
     plt.plot(y, label='y-Deseada')
     plt.plot(y_predicho, label='y-Calculada')
     plt.xlabel('ID de Muestra')
     plt.ylabel('Valor')
-    plt.title('Comparación entre y-Deseada y y-Calculada')
+    plt.title(f'Comparación entre y-Deseada y y-Calculada (Época {epoca})')
     plt.legend()
-    plt.show()
+    plt.savefig(f'graficas_epocas/comparacion_epoca_{epoca}.png')
+    plt.close()
 
 def plot_evolucion_pesos(epocas, historial_pesos):
     historial_pesos = np.array(historial_pesos)
@@ -85,7 +93,8 @@ def plot_evolucion_pesos(epocas, historial_pesos):
     plt.ylabel('Peso')
     plt.title('Evolución de los Pesos a lo largo de las Épocas')
     plt.legend()
-    plt.show()
+    plt.savefig('grafica_evolucion_pesos/evolucion_pesos.png')
+    plt.close()
 
 def ejecutar_entrenamiento():
     try:
@@ -117,7 +126,6 @@ def ejecutar_entrenamiento():
         print(pesos_finales_df)
 
         plot_evolucion_error(epocas, historial_costos)
-        plot_comparacion_y(y, y_predicho)
         plot_evolucion_pesos(epocas, historial_pesos)
 
     except ValueError:
