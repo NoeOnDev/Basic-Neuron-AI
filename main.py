@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from tkinter import Tk, Label, Entry, Button
+import tkinter.messagebox as messagebox
 
 conjunto_datos = pd.read_excel('2024.05.22 dataset 8A.xlsx')
 
@@ -52,58 +54,80 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
     
     return w, b, historial_costos, historial_pesos
 
-tasa_aprendizaje = 0.1
-epocas = 1000
+def ejecutar_entrenamiento():
+    try:
+        tasa_aprendizaje = float(entry_tasa_aprendizaje.get())
+        epocas = int(entry_epocas.get())
+        
+        global w, b
+        w, b, historial_costos, historial_pesos = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
 
-w, b, historial_costos, historial_pesos = entrenar(x, y, w, b, tasa_aprendizaje, epocas)
+        y_predicho = predecir(x, w, b)
+        costo_final = error_cuadratico_medio(y, y_predicho)
 
-y_predicho = predecir(x, w, b)
+        print(f'Costo Final: {costo_final}')
+        print(f'Pesos: {w}')
+        print(f'Sesgo: {b}')
 
-costo_final = error_cuadratico_medio(y, y_predicho)
-print(f'Costo Final: {costo_final}')
-print(f'Pesos: {w}')
-print(f'Sesgo: {b}')
+        pesos_df = pd.DataFrame({
+            'Caracteristica': ['x1', 'x2', 'x3', 'x4'],
+            'Peso': w
+        })
 
-pesos_df = pd.DataFrame({
-    'Caracteristica': ['x1', 'x2', 'x3', 'x4'],
-    'Peso': w
-})
+        sesgo_df = pd.DataFrame({
+            'Caracteristica': ['sesgo'],
+            'Peso': [b]
+        })
 
-sesgo_df = pd.DataFrame({
-    'Caracteristica': ['sesgo'],
-    'Peso': [b]
-})
+        pesos_finales_df = pd.concat([pesos_df, sesgo_df])
 
-pesos_finales_df = pd.concat([pesos_df, sesgo_df])
+        print(pesos_finales_df)
 
-print(pesos_finales_df)
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(epocas), historial_costos, label='Costo')
+        plt.xlabel('Épocas')
+        plt.ylabel('Error Cuadrático Medio')
+        plt.title('Evolución del Error a lo largo de las Épocas')
+        plt.legend()
+        plt.show()
 
-plt.figure(figsize=(10, 6))
-plt.plot(range(epocas), historial_costos, label='Costo')
-plt.xlabel('Épocas')
-plt.ylabel('Error Cuadrático Medio')
-plt.title('Evolución del Error a lo largo de las Épocas')
-plt.legend()
-plt.show()
+        plt.figure(figsize=(10, 6))
+        plt.plot(y, label='y-Deseada')
+        plt.plot(y_predicho, label='y-Calculada')
+        plt.xlabel('ID de Muestra')
+        plt.ylabel('Valor')
+        plt.title('Comparación entre y-Deseada y y-Calculada')
+        plt.legend()
+        plt.show()
 
-plt.figure(figsize=(10, 6))
-plt.plot(y, label='y-Deseada')
-plt.plot(y_predicho, label='y-Calculada')
-plt.xlabel('ID de Muestra')
-plt.ylabel('Valor')
-plt.title('Comparación entre y-Deseada y y-Calculada')
-plt.legend()
-plt.show()
+        historial_pesos = np.array(historial_pesos)
+        plt.figure(figsize=(10, 6))
+        for i in range(historial_pesos.shape[1]):
+            if i < historial_pesos.shape[1] - 1:
+                plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
+            else:
+                plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
+        plt.xlabel('Épocas')
+        plt.ylabel('Peso')
+        plt.title('Evolución de los Pesos a lo largo de las Épocas')
+        plt.legend()
+        plt.show()
 
-historial_pesos = np.array(historial_pesos)
-plt.figure(figsize=(10, 6))
-for i in range(historial_pesos.shape[1]):
-    if i < historial_pesos.shape[1] - 1:
-        plt.plot(range(epocas), historial_pesos[:, i], label=f'Peso {i+1} (x{i+1})')
-    else:
-        plt.plot(range(epocas), historial_pesos[:, i], label='Sesgo')
-plt.xlabel('Épocas')
-plt.ylabel('Peso')
-plt.title('Evolución de los Pesos a lo largo de las Épocas')
-plt.legend()
-plt.show()
+    except ValueError:
+        messagebox.showerror("Entrada no válida", "Por favor, introduce valores numéricos válidos para la tasa de aprendizaje y las épocas.")
+
+root = Tk()
+root.title("Entrenamiento de Modelo")
+
+Label(root, text="Tasa de Aprendizaje:").grid(row=0, column=0)
+entry_tasa_aprendizaje = Entry(root)
+entry_tasa_aprendizaje.grid(row=0, column=1)
+
+Label(root, text="Épocas:").grid(row=1, column=0)
+entry_epocas = Entry(root)
+entry_epocas.grid(row=1, column=1)
+
+button_ejecutar = Button(root, text="Ejecutar", command=ejecutar_entrenamiento)
+button_ejecutar.grid(row=2, column=0, columnspan=2)
+
+root.mainloop()
