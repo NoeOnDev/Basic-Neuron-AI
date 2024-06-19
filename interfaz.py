@@ -32,7 +32,7 @@ def ejecutar_entrenamiento(tree, entry_tasa_aprendizaje, entry_epocas):
         
         tasa_aprendizaje, epocas = validar_entradas(tasa_aprendizaje_str, epocas_str)
         
-        w, b, costo_final = modelo.ejecutar_entrenamiento('2024.05.22 dataset 8A.xlsx', tasa_aprendizaje, epocas)
+        w, b, costo_final = modelo.ejecutar_entrenamiento('221219.csv', tasa_aprendizaje, epocas)
 
         mostrar_tabla_pesos(tree, w, b)
 

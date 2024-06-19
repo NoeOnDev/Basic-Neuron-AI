@@ -2,7 +2,6 @@ import os
 import shutil
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 from graficas import plot_evolucion_error, plot_comparacion_y, plot_evolucion_pesos
 
 def recrear_directorios():
@@ -13,7 +12,7 @@ def recrear_directorios():
         os.makedirs(directorio)
 
 def cargar_datos(ruta_archivo):
-    conjunto_datos = pd.read_excel(ruta_archivo)
+    conjunto_datos = pd.read_csv(ruta_archivo)
     x1 = conjunto_datos['x1'].values
     x2 = conjunto_datos['x2'].values
     x3 = conjunto_datos['x3'].values
@@ -22,9 +21,6 @@ def cargar_datos(ruta_archivo):
 
     x = np.column_stack((x1, x2, x3, x4))
     y = yd
-
-    escalador = StandardScaler()
-    x = escalador.fit_transform(x)
 
     return x, y
 
@@ -51,6 +47,15 @@ def entrenar(x, y, w, b, tasa_aprendizaje, epocas):
         b -= tasa_aprendizaje * db
         
         costo = error_cuadratico_medio(y, y_predicho)
+        
+        print(f"Época {epoca} - Costo: {costo}")
+        print(f"Pesos: {w}")
+        print(f"Sesgo: {b}")
+        
+        if np.isnan(costo) or np.isinf(costo):
+            print("Error: Costo no válido (NaN o infinito). Deteniendo el entrenamiento.")
+            break
+        
         historial_costos.append(costo)
         historial_pesos.append(np.append(w, b))
         
